@@ -16,7 +16,7 @@ export default function Navbar() {
             const data = await response.json();
             if (response.ok) {
                 dispatch(setAllCategories(data));
-                setCats(data); 
+                setCats(data);
             }
         };
         fetchCats();
@@ -39,35 +39,37 @@ export default function Navbar() {
     const handleSearch = async (e) => {
         const query = e.target.value;
         if (query.length > 0) {
-          const res = await fetch(`https://dummyjson.com/products/search?q=${query}`);
-          const data = await res.json();
-          dispatch(setProducts(data.products));
-          dispatch(setSelectedCategory("search"));
-          dispatch(setSearchQuery(query));
-          dispatch(setSkip(0));
+            const res = await fetch(`https://dummyjson.com/products/search?q=${query}`);
+            const data = await res.json();
+            dispatch(setProducts(data.products));
+            dispatch(setSelectedCategory("search"));
+            dispatch(setSearchQuery(query));
+            dispatch(setSkip(0));
         }
     };
 
     return (
-        <div className="navbar bg-base-300 rounded-box">
+        <div className="navbar bg-base-300 rounded-box w-full">
             <div className="flex-1 px-2 lg:flex-none">
-                <button className="text-lg font-bold" onClick={() => handleCategoryClick("")}>Home</button>
+                <button className="text-lg font-bold w-24 sm:w-32" onClick={() => handleCategoryClick("")}>
+                    Home
+                </button>
             </div>
             <div className="flex flex-1 justify-end px-2 relative">
                 <div className="form-control relative">
-                <input
-                    type="text"
-                    className="input input-bordered md:w-80"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            handleSearch(e);
-                        }
-                    }}
-                    placeholder="Search Products..."
-                />
+                    <input
+                        type="text"
+                        className="input input-bordered w-full md:w-80 lg:w-96"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearch(e);
+                            }
+                        }}
+                        placeholder="Search Products..."
+                    />
                 </div>
                 <div className="dropdown dropdown-end">
-                    <label tabIndex={0} className="btn btn-ghost rounded-btn">Categories</label>
+                    <label tabIndex={0} className="btn btn-ghost rounded-btn w-24 sm:w-32">Categories</label>
                     <ul
                         tabIndex={0}
                         className="menu dropdown-content grid grid-cols-2 bg-base-100 rounded-box z-[1] mt-4 w-[50vw] max-w-[300px] p-2 shadow"
@@ -75,7 +77,9 @@ export default function Navbar() {
                         {Cats.length > 0 ? (
                             Cats.map((cat) => (
                                 <li key={cat}>
-                                    <button onClick={() => handleCategoryClick(cat)} className="w-full text-left">{cat[0].toUpperCase()+cat.slice(1)}</button>
+                                    <button onClick={() => handleCategoryClick(cat)} className="w-full text-left">
+                                        {cat[0].toUpperCase() + cat.slice(1)}
+                                    </button>
                                 </li>
                             ))
                         ) : null}
