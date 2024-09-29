@@ -52,7 +52,7 @@ export default function ProductCard({ product }) {
                                 product.reviews.map((review, index) => (
                                     <div key={index} className="border-b border-gray-300 mb-2 pb-2 text-gray-800">
                                         <p className="font-semibold">{review.reviewerName}:</p>
-                                        <p className="italic">"{review.comment}"</p>
+                                        <p className="italic">&quot;{review.comment}&quot;</p>
                                         <p>Rating: {review.rating} ⭐</p>
                                     </div>
                                 ))
