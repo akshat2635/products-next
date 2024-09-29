@@ -20,7 +20,7 @@ export default function ProductCard({ product }) {
                 <img src={product.thumbnail} alt={product.title} className="w-full h-40 object-cover" />
 
                 <div className="p-3">
-                    <h2 className="font-semibold text-md">{product.title}</h2>
+                    <h2 className="font-semibold text-md text-black">{product.title}</h2>
                     {product.brand && (
                         <p className="text-gray-600 text-sm">Brand: {product.brand}</p>
                     )}
