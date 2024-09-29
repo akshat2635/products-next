@@ -13,6 +13,20 @@ const inter = Inter({ subsets: ['latin'] });
 //   description: 'Your App Description',
 // };
 
+/* 
+Limitations of this app
+
+The app shows all proucts and details on a single home page without utilizing routes
+which can make the process of testing and scaling difficult
+
+since the app is based wholly on external api rather than a backend connected to database,
+the app can crash if api crashes 
+
+we cant show the user valid keywords related to search query as done by google because
+of lack of access of database of products.
+
+*/
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
