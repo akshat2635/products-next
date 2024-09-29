@@ -1,101 +1,85 @@
-import Image from "next/image";
+"use client"; // Required to indicate this is a client component
+
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSkip, setProducts } from '../redux/store'; // Adjust based on your file structure
+import InfiniteScroll from 'react-infinite-scroll-component';
+import ProductCard from './components/ProductCard';
+import Spinner from './components/Spinner';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    const dispatch = useDispatch();
+    const selectedCategory = useSelector((state) => state.data.selectedCategory);
+    const products = useSelector((state) => state.data.products);
+    const searchQuery = useSelector((state) => state.data.searchQuery);
+    const limit = useSelector((state) => state.data.limit); 
+    const skip = useSelector((state) => state.data.skip);
+    const [hasMore, setHasMore] = useState(true); 
+    
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const response = await fetch(`https://dummyjson.com/products${selectedCategory}?limit=${limit}&skip=${skip}`);
+            const data = await response.json();
+    
+            if (response.ok) {
+                const prevProducts = products;
+                const updatedProducts = [...prevProducts, ...data.products];
+                dispatch(setProducts(updatedProducts));
+                
+                if (updatedProducts.length >= data.total) {
+                    setHasMore(false); 
+                }
+            }
+        };
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        if (skip === 0) setHasMore(true);
+        if (selectedCategory !== "search") {
+            fetchProducts();
+        }
+    }, [selectedCategory, skip, limit, dispatch]);
+
+    if (searchQuery.length > 0) {
+        if (products.length === 0) {
+            return (
+                <div className="container mx-auto my-4 flex flex-col items-center">
+                    <h1 className="text-3xl font-bold mb-4 text-white">No Products found for {searchQuery}</h1>
+                </div>
+            );
+        }
+        return (
+            <div className="container mx-auto my-4 flex flex-col items-center">
+                <h1 className="text-3xl font-bold mb-4 text-white">Results for {searchQuery}</h1>
+                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden">
+                    {products.map((prod) => (
+                        <ProductCard key={prod.id} product={prod} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="container mx-auto my-4 flex flex-col items-center">
+            <h1 className="text-3xl font-bold mb-4 text-white">
+                {selectedCategory.length > 0 && selectedCategory !== "search" 
+                    ? selectedCategory.split('/')[2].toUpperCase() 
+                    : searchQuery.length > 0 
+                    ? `Results for ${searchQuery}` 
+                    : "All Products"}
+            </h1>
+            
+            <InfiniteScroll
+                dataLength={products.length}
+                next={() => dispatch(setSkip(skip + limit))}
+                hasMore={hasMore}
+                loader={<div className="flex justify-center my-10"><Spinner /></div>}
+            >
+                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden">
+                    {products.map((prod) => (
+                        <ProductCard key={prod.id} product={prod} />
+                    ))}
+                </div>
+            </InfiniteScroll>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
